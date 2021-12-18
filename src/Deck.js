@@ -6,9 +6,9 @@ const BASE_URL = "http://deckofcardsapi.com/api/deck";
 
 const Deck = () => {
   const [deck, setDeck] = useState(null);
-  const [card, setCard] = useState([]);
+  const [draw, setDraw] = useState([]);
   // const timer = useRef();
-  
+
   useEffect(() => {
     async function getData() {
       let d = await axios.get(`${BASE_URL}/new/shuffle/`);
@@ -16,14 +16,41 @@ const Deck = () => {
     }
     getData();
   }, [setDeck]);
-  console.log(deck.data.deck_id);
 
+  useEffect(() => {
+    async function getCard() {
+      let { deck_id } = deck;
 
+      try {
+        let drawResult = await axios.get(`${BASE_URL}/${deck_id}/draw/`);
+
+        if (drawResult.data.remaining === 0) {
+          throw new Error("no cards remaining!");
+        }
+
+        const card = drawResult.data.cards[0];
+
+        setDraw((c) => [
+          ...c,
+          {
+            id: card.code,
+            name: card.value + " of " + card.suit,
+            image: card.image,
+          },
+        ]);
+      } catch (err) {
+        alert(err);
+      }
+    }
+    getCard();
+  }, [deck]);
+
+  const cards = draw.map((c) => <Card name={c.name} image={c.image} />);
+  
   return (
     <>
-      <h3>{card}</h3>
-      <button>Gimme a Card!</button>
-      <Card />
+      {deck ? <button onClick={setDraw}>Gimme a Card!</button> : null}
+      <div>{cards}</div>
     </>
   );
 };
