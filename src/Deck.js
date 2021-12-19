@@ -4,15 +4,12 @@ import axios from "axios";
 
 const API_BASE_URL = "http://deckofcardsapi.com/api/deck";
 
-/* Deck: uses deck API, allows drawing card at a time. */
-
 function Deck() {
   const [deck, setDeck] = useState(null);
   const [drawn, setDrawn] = useState([]);
   const [autoDraw, setAutoDraw] = useState(false);
   const timerRef = useRef(null);
 
-  /* At mount: load deck from API into state. */
   useEffect(() => {
     async function getData() {
       let d = await axios.get(`${API_BASE_URL}/new/shuffle/`);
@@ -21,9 +18,7 @@ function Deck() {
     getData();
   }, [setDeck]);
 
-  /* Draw one card every second if autoDraw is true */
   useEffect(() => {
-    /* Draw a card via API, add card to state "drawn" list */
     async function getCard() {
       let { deck_id } = deck;
 
